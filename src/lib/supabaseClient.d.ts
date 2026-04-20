@@ -52,6 +52,8 @@ export const supabase: SupabaseClient
 export function getFeaturedProjects(limit?: number): Promise<SupabaseResult<PublicProject[]>>
 export function getSiteStats(): Promise<SupabaseResult<SiteStat[]>>
 export function getRawSiteStats(): Promise<SupabaseResult<RawSiteStats>>
+export function getProjectPhotos(slug: string): Promise<SupabaseResult<string[]>>
+export function getHeroVideoUrl(bucket?: string, filename?: string): string
 export function sendContactMessage(
   payload: ContactMessagePayload,
 ): Promise<SupabaseResult<{ ok: boolean }>>

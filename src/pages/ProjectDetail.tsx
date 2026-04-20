@@ -1,9 +1,32 @@
+import { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { projects } from '../data/projects'
+import { getProjectPhotos } from '../lib/supabaseClient'
 
 function ProjectDetail() {
   const { slug } = useParams()
   const project = projects.find((item) => item.slug === slug)
+
+  const [photos, setPhotos] = useState<string[]>([])
+  const [photosLoading, setPhotosLoading] = useState(true)
+
+  useEffect(() => {
+    if (!slug) return
+
+    setPhotosLoading(true)
+    void getProjectPhotos(slug).then(({ data }) => {
+      setPhotos(data ?? [])
+      setPhotosLoading(false)
+    })
+  }, [slug])
+
+  // Decide what to show in the gallery:
+  // 1. Photos from Supabase Storage (if any were uploaded)
+  // 2. Fallback to static gallery URLs from projects.ts
+  const galleryImages = photos.length > 0 ? photos : (project?.gallery ?? [])
+
+  // Cover image: first Storage photo, or static coverImage
+  const coverImage = photos.length > 0 ? photos[0] : (project?.coverImage ?? '')
 
   if (!project) {
     return (
@@ -37,7 +60,10 @@ function ProjectDetail() {
           </div>
         </div>
 
-        <div className="project-hero-media" style={{ backgroundImage: `url(${project.coverImage})` }}></div>
+        <div
+          className="project-hero-media"
+          style={{ backgroundImage: `url(${coverImage})` }}
+        />
       </div>
 
       <section className="section-block">
@@ -69,15 +95,21 @@ function ProjectDetail() {
         </div>
 
         <div className="container gallery-grid">
-          {project.gallery.map((image, index) => (
-            <div
-              aria-label={`Imagen ${index + 1} de ${project.title}`}
-              className="gallery-card"
-              key={image}
-              role="img"
-              style={{ backgroundImage: `url(${image})` }}
-            ></div>
-          ))}
+          {photosLoading ? (
+            <p className="gallery-loading">Cargando galería...</p>
+          ) : galleryImages.length === 0 ? (
+            <p className="gallery-loading">Sin imágenes todavía.</p>
+          ) : (
+            galleryImages.map((image, index) => (
+              <div
+                aria-label={`Imagen ${index + 1} de ${project.title}`}
+                className="gallery-card"
+                key={image}
+                role="img"
+                style={{ backgroundImage: `url(${image})` }}
+              />
+            ))
+          )}
         </div>
       </section>
     </article>

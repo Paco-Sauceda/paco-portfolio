@@ -97,6 +97,60 @@ export async function getSiteStats() {
   }, 'No fue posible obtener estadisticas del sitio.')
 }
 
+// ─── Storage helpers ─────────────────────────────────────────────────────────
+// Bucket name where you upload photos — change if yours is named differently
+const PHOTOS_BUCKET = 'photos'
+
+/**
+ * Lists all photos for a project from Supabase Storage.
+ * Upload your photos to a folder named after the project slug:
+ *   photos/luz-de-medianoche/cover.jpg
+ *   photos/luz-de-medianoche/gallery-1.jpg
+ *
+ * Returns an array of full public URLs, cover.jpg always first.
+ */
+export async function getProjectPhotos(slug) {
+  if (!hasSupabaseConfig) return createResult([], null)
+
+  return withErrorHandling(async () => {
+    const { data, error } = await supabase.storage
+      .from(PHOTOS_BUCKET)
+      .list(slug, { sortBy: { column: 'name', order: 'asc' } })
+
+    if (error) return createResult([], error.message)
+    if (!data || data.length === 0) return createResult([], null)
+
+    const urls = data
+      .filter((file) => file.name !== '.emptyFolderPlaceholder')
+      .map((file) => {
+        const { data: urlData } = supabase.storage
+          .from(PHOTOS_BUCKET)
+          .getPublicUrl(`${slug}/${file.name}`)
+        return urlData.publicUrl
+      })
+
+    // Put cover first (file named "cover.*")
+    urls.sort((a, b) => {
+      const aIsCover = a.includes('/cover.')
+      const bIsCover = b.includes('/cover.')
+      if (aIsCover) return -1
+      if (bIsCover) return 1
+      return 0
+    })
+
+    return createResult(urls, null)
+  }, 'No fue posible cargar las fotos del proyecto.')
+}
+
+/**
+ * Returns the public URL of the hero video.
+ * Upload it to the videos bucket at the root level as "hero.mp4".
+ */
+export function getHeroVideoUrl(bucket = 'videos', filename = 'hero.mp4') {
+  const { data } = supabase.storage.from(bucket).getPublicUrl(filename)
+  return data?.publicUrl ?? ''
+}
+
 export async function sendContactMessage({ name, email, projectType, message }) {
   if (!hasSupabaseConfig) {
     return createResult(null, 'Faltan VITE_SUPABASE_URL y/o VITE_SUPABASE_PUBLISHABLE_KEY.')
