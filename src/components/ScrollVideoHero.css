@@ -1,93 +1,114 @@
-.svh {
+/* ─── Tall wrapper that gives scroll room ───────────────────── */
+.svh-wrapper {
   position: relative;
-  height: 100vh;
-  overflow: clip;
-  isolation: isolate;
+  height: 500vh; /* 5x viewport = lots of scroll to scrub through */
   background: #040404;
-  color: #f7f3ea;
 }
 
-.svh__media {
+/* ─── Sticky panel — stays in viewport while scrolling ─────── */
+.svh-sticky {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+/* ─── Video fills the full sticky panel ────────────────────── */
+.svh-video {
   position: absolute;
   inset: 0;
-  z-index: 0;
-}
-
-.svh__video {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transform: scale(1.04);
-  filter: saturate(0.7) contrast(1.08) brightness(0.42);
+  filter: saturate(0.72) contrast(1.08) brightness(0.46);
 }
 
-.svh__overlay {
+/* ─── Gradient overlay ──────────────────────────────────────── */
+.svh-overlay {
   position: absolute;
   inset: 0;
   background:
-    radial-gradient(circle at 75% 22%, rgba(255, 210, 110, 0.14), transparent 35%),
-    radial-gradient(circle at 15% 78%, rgba(196, 123, 85, 0.16), transparent 44%),
-    linear-gradient(180deg, rgba(4, 4, 4, 0.32) 0%, rgba(4, 4, 4, 0.72) 58%, #040404 100%);
-}
-
-.svh__content {
-  position: relative;
+    radial-gradient(circle at 75% 22%, rgba(255, 210, 110, 0.12), transparent 35%),
+    radial-gradient(circle at 15% 78%, rgba(196, 123, 85, 0.14), transparent 44%),
+    linear-gradient(180deg, rgba(4, 4, 4, 0.28) 0%, rgba(4, 4, 4, 0.64) 60%, #040404 100%);
   z-index: 1;
+}
+
+/* ─── Content layers — all absolutely positioned ───────────── */
+.svh-content {
+  position: absolute;
+  z-index: 2;
   width: min(1080px, calc(100% - 3rem));
-  height: 100%;
-  margin: 0 auto;
+  left: 50%;
+  transform: translateX(-50%);
+
+  /* Default: bottom-left like a film title card */
+  bottom: clamp(3.5rem, 9vh, 6rem);
   display: grid;
-  align-content: end;
   gap: 1rem;
-  padding: clamp(4.5rem, 10vh, 8rem) 0;
 }
 
-.svh__eyebrow {
-  margin: 0;
-  font-family: 'Manrope', 'Avenir Next', 'Segoe UI', sans-serif;
-  font-size: 0.72rem;
-  letter-spacing: 0.28em;
-  text-transform: uppercase;
-  color: rgba(247, 243, 234, 0.78);
+.svh-content--center {
+  top: 50%;
+  bottom: auto;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  place-items: center;
 }
 
-.svh__name {
+.svh-content--bottom {
+  bottom: clamp(3rem, 7vh, 5rem);
+}
+
+/* ─── Typography ────────────────────────────────────────────── */
+.svh-title {
   margin: 0;
-  max-width: 12ch;
-  font-family: 'Cormorant Garamond', 'Times New Roman', serif;
+  max-width: 14ch;
+  font-size: clamp(2.8rem, 7.5vw, 7rem);
   font-weight: 600;
   letter-spacing: -0.04em;
-  line-height: 0.92;
-  font-size: clamp(2.9rem, 8.2vw, 7.5rem);
+  line-height: 0.93;
+  color: #f7f3ea;
 }
 
-.svh__subtitle {
+.svh-subtitle {
   margin: 0;
-  max-width: 60ch;
-  font-family: 'Manrope', 'Avenir Next', 'Segoe UI', sans-serif;
-  font-size: clamp(1rem, 1.9vw, 1.25rem);
+  max-width: 52ch;
+  font-size: clamp(0.95rem, 1.8vw, 1.2rem);
   line-height: 1.68;
-  color: rgba(247, 243, 234, 0.78);
+  color: rgba(247, 243, 234, 0.76);
 }
 
-@media (max-width: 840px) {
-  .svh__content {
-    width: min(100% - 2rem, 100%);
-    gap: 0.85rem;
-    padding-bottom: 4rem;
+.svh-mid-text {
+  margin: 0;
+  font-size: clamp(1.8rem, 4.5vw, 4rem);
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+  color: #f7f3ea;
+  text-align: center;
+  max-width: 18ch;
+}
+
+/* ─── Start hidden — JS fades them in ──────────────────────── */
+.svh__intro,
+.svh__mid,
+.svh__end {
+  opacity: 0;
+}
+
+/* ─── Responsive ────────────────────────────────────────────── */
+@media (max-width: 600px) {
+  .svh-wrapper {
+    height: 400vh; /* slightly less on mobile */
   }
 
-  .svh__name {
+  .svh-title {
     max-width: 100%;
   }
-}
 
-@media (max-width: 560px) {
-  .svh__video {
-    transform: scale(1.08);
-  }
-
-  .svh__subtitle {
+  .svh-subtitle {
     max-width: 100%;
   }
 }
