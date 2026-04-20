@@ -8,7 +8,7 @@ const AdminLogin = lazy(() => import('./pages/AdminLogin'))
 const Contact = lazy(() => import('./pages/Contact'))
 const Home = lazy(() => import('./pages/Home'))
 const Portfolio = lazy(() => import('./pages/Portfolio'))
-const ProjectDetail = lazy(() => import('./pages/ProjectDetail'))
+const ServiceGallery = lazy(() => import('./pages/ServiceGallery'))
 
 function App() {
   return (
@@ -28,7 +28,7 @@ function App() {
           <Route element={<MainLayout />} path="/">
             <Route element={<Home />} index />
             <Route element={<Portfolio />} path="portfolio" />
-            <Route element={<ProjectDetail />} path="portfolio/:slug" />
+            <Route element={<ServiceGallery />} path="portfolio/:slug" />
             <Route element={<Contact />} path="contacto" />
           </Route>
 

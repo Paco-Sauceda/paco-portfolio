@@ -5,16 +5,22 @@ function Footer() {
     <footer className="footer-shell">
       <div className="container footer">
         <div>
-          <span className="eyebrow">Disponible para proyectos selectos</span>
-          <p className="footer-title">Imagen premium para marcas, artistas y editoriales.</p>
+          <span className="eyebrow">Disponible para proyectos</span>
+          <p className="footer-title">
+            Fotografía y video profesional para tus momentos más importantes.
+          </p>
         </div>
 
         <div className="footer-links">
-          <Link to="/portfolio">Portfolio</Link>
+          <Link to="/portfolio">Servicios</Link>
           <Link to="/contacto">Contacto</Link>
-          <a href="mailto:hola@pacosauceda.com">hola@pacosauceda.com</a>
-          <a href="https://instagram.com" rel="noreferrer" target="_blank">
-            Instagram
+          <a href="mailto:fsaucedamoreno@gmail.com">Email</a>
+          <a
+            href="https://instagram.com/franciscosaucedam"
+            rel="noreferrer"
+            target="_blank"
+          >
+            @franciscosaucedam
           </a>
         </div>
       </div>

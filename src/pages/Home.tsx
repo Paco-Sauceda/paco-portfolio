@@ -1,91 +1,90 @@
-import { useEffect, useState } from 'react'
-import FeaturedProjects from '../components/FeaturedProjects'
+import { Link } from 'react-router-dom'
 import ScrollVideoHero from '../components/ScrollVideoHero'
-import StatsSection from '../components/StatsSection'
-import { featuredProjects } from '../data/projects'
-import type { Project } from '../types/project'
-import { getFeaturedProjects, getSiteStats } from '../lib/supabaseClient'
-
-const fallbackStats = [
-  {
-    value: '40+',
-    label: 'Producciones entregadas',
-    detail: 'Moda, retrato, hospitality y contenido premium para marcas.',
-  },
-  {
-    value: '06',
-    label: 'Anios afinando lenguaje visual',
-    detail: 'Direccion sobria, iluminacion precisa y edicion contenida.',
-  },
-  {
-    value: 'Foto + Video',
-    label: 'Cobertura hibrida',
-    detail: 'Una misma narrativa adaptada a editorial, social y lanzamiento.',
-  },
-]
+import { services, aboutPhoto, heroVideo } from '../data/services'
 
 function Home() {
-  const [projectsData, setProjectsData] = useState<Project[]>(featuredProjects)
-  const [statsData, setStatsData] = useState(fallbackStats)
-
-  useEffect(() => {
-    let isMounted = true
-
-    const loadHomeData = async () => {
-      const [projectsResult, statsResult] = await Promise.all([
-        getFeaturedProjects(3),
-        getSiteStats(),
-      ])
-
-      if (!isMounted) {
-        return
-      }
-
-      if (projectsResult.data && projectsResult.data.length > 0) {
-        setProjectsData(projectsResult.data)
-      }
-
-      if (statsResult.data && statsResult.data.length > 0) {
-        setStatsData(statsResult.data)
-      }
-    }
-
-    void loadHomeData()
-
-    return () => {
-      isMounted = false
-    }
-  }, [])
-
   return (
     <>
       <ScrollVideoHero
-        ctaPrimaryLabel="Ver proyectos"
+        ctaPrimaryLabel="Ver servicios"
         ctaPrimaryTo="/portfolio"
-        ctaSecondaryLabel="Hablemos"
+        ctaSecondaryLabel="Contáctame"
         ctaSecondaryTo="/contacto"
-        eyebrow="Portafolio premium"
-        poster="https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1600&q=80"
-        subtitle="Fotografia y videografia con una sensibilidad oscura, minimalista y cinematografica para marcas, artistas y editoriales."
-        title="Imagen que respira lujo, tension y presencia."
-        videoSrc="https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4"
+        eyebrow="Paco Sauceda"
+        poster={services[0].cover}
+        subtitle="Fotografía y video profesional para bodas, XV años, marcos y contenido comercial."
+        title="Tu momento, capturado con estilo."
+        videoSrc={heroVideo}
       />
 
-      <section className="section-block intro-shell">
-        <div className="container intro-grid">
-          <div className="section-copy-block">
-            <span className="eyebrow">Direccion visual</span>
-            <h2>Narrativas visuales sobrias, elegantes y precisas.</h2>
+      {/* ─── Services Section ─────────────────────────────── */}
+      <section className="section-block">
+        <div className="container section-heading-row">
+          <div>
+            <span className="eyebrow">Servicios</span>
+            <h2>Lo que puedo hacer por ti.</h2>
           </div>
-          <p className="lead-copy">
-            Trabajo desde concepto, captura y acabado final para construir material con valor de
-            marca. Menos ruido, mejor ritmo, decisiones visuales intencionales.
-          </p>
+          <Link className="text-link" to="/portfolio">
+            Ver todo
+          </Link>
+        </div>
+
+        <div className="container services-grid">
+          {services.map((service) => (
+            <Link
+              className="service-card"
+              key={service.slug}
+              to={`/portfolio/${service.slug}`}
+            >
+              <div
+                className="service-card-media"
+                style={{ backgroundImage: `url(${service.cover})` }}
+              />
+              <div className="service-card-body">
+                <span className="service-card-sub">{service.subtitle}</span>
+                <h3>{service.title}</h3>
+              </div>
+              <div className="service-card-hover">Ver galería</div>
+            </Link>
+          ))}
         </div>
       </section>
 
-      <FeaturedProjects projects={projectsData} />
-      <StatsSection items={statsData} />
+      {/* ─── About Section ────────────────────────────────── */}
+      <section className="section-block">
+        <div className="container about-grid">
+          <div
+            className="about-photo"
+            style={{ backgroundImage: `url(${aboutPhoto})` }}
+          />
+          <div className="about-copy">
+            <span className="eyebrow">Sobre mí</span>
+            <h2>Paco Sauceda</h2>
+            <p>
+              Fotógrafo y videógrafo profesional. Me especializo en capturar
+              momentos que importan — bodas, XV años, sesiones de retrato y
+              contenido comercial para marcas que quieren destacar.
+            </p>
+            <p>
+              Cada proyecto tiene su propio lenguaje visual. Mi trabajo es
+              encontrarlo y hacer que se sienta auténtico.
+            </p>
+            <div className="about-actions">
+              <Link className="button" to="/contacto">
+                Trabajemos juntos
+              </Link>
+              <a
+                className="button button-ghost"
+                href="https://instagram.com/franciscosaucedam"
+                rel="noreferrer"
+                target="_blank"
+              >
+                Instagram
+              </a>
+            </div>
+          </div>
+        </div>
+      </section>
     </>
   )
 }
