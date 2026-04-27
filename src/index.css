@@ -1155,6 +1155,10 @@ p {
     padding-bottom: 92px;
   }
 
+  .svh-wrapper + .section-block {
+    padding-top: 48px;
+  }
+
   .navbar-shell {
     padding-top: 12px;
   }

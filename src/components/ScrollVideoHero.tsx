@@ -135,7 +135,7 @@ function ScrollVideoHero({
     // Tall wrapper — scroll distance = how long the scrub lasts
     <div className="svh-wrapper" ref={wrapperRef}>
       {/* Sticky viewport that stays pinned while you scroll */}
-      <div className="svh-sticky">
+      <div className="svh-sticky" style={{ backgroundImage: `url(${poster})` }}>
         {/* Video */}
         <video
           className="svh-video"

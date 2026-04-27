@@ -10,9 +10,12 @@
   position: sticky;
   top: 0;
   height: 100vh;
-  height: 100dvh;
+  height: 100svh;
   overflow: hidden;
   isolation: isolate;
+  background-color: #0a0a0a;
+  background-size: cover;
+  background-position: center;
 }
 
 /* ─── Video fills the full sticky panel ────────────────────── */
@@ -32,7 +35,7 @@
   background:
     radial-gradient(circle at 75% 22%, rgba(255, 210, 110, 0.12), transparent 35%),
     radial-gradient(circle at 15% 78%, rgba(196, 123, 85, 0.14), transparent 44%),
-    linear-gradient(180deg, rgba(4, 4, 4, 0.28) 0%, rgba(4, 4, 4, 0.64) 60%, #040404 100%);
+    linear-gradient(180deg, rgba(4, 4, 4, 0.18) 0%, rgba(4, 4, 4, 0.50) 70%, rgba(4, 4, 4, 0.85) 100%);
   z-index: 1;
 }
 
@@ -100,9 +103,24 @@
 }
 
 /* ─── Responsive ────────────────────────────────────────────── */
-@media (max-width: 600px) {
+@media (max-width: 768px) {
   .svh-wrapper {
     height: 300vh;
+  }
+
+  .svh-sticky {
+    height: 100svh;
+    min-height: 100svh;
+  }
+
+  .svh-overlay {
+    background:
+      linear-gradient(180deg, rgba(4, 4, 4, 0.10) 0%, rgba(4, 4, 4, 0.40) 65%, rgba(4, 4, 4, 0.78) 100%);
+  }
+
+  .svh-content {
+    bottom: clamp(2.5rem, 6vh, 4rem);
+    width: calc(100% - 2rem);
   }
 
   .svh-title {
@@ -111,6 +129,10 @@
 
   .svh-subtitle {
     max-width: 100%;
+  }
+
+  .svh-video {
+    filter: saturate(0.72) contrast(1.06) brightness(0.52);
   }
 }
 
@@ -125,5 +147,9 @@
 
   .svh-title {
     font-size: clamp(2.2rem, 7vw, 4rem);
+  }
+
+  .svh-content {
+    bottom: clamp(2rem, 5vh, 3rem);
   }
 }
