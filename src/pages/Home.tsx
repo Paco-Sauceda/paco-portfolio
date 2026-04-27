@@ -44,7 +44,6 @@ function Home() {
                 <span className="service-card-sub">{service.subtitle}</span>
                 <h3>{service.title}</h3>
               </div>
-              <div className="service-card-hover">Ver galería</div>
             </Link>
           ))}
         </div>

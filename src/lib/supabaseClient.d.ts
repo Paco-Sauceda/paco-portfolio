@@ -37,6 +37,7 @@ export interface RawSiteStats {
 export interface ContactMessagePayload {
   name: string
   email: string
+  phone?: string
   projectType: string
   message: string
 }

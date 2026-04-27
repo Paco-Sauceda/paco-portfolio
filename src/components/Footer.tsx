@@ -22,6 +22,13 @@ function Footer() {
           >
             @franciscosaucedam
           </a>
+          <a
+            href="https://wa.me/528114210045"
+            rel="noreferrer"
+            target="_blank"
+          >
+            WhatsApp
+          </a>
         </div>
       </div>
     </footer>

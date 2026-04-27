@@ -98,60 +98,78 @@ export async function getSiteStats() {
 }
 
 // ─── Storage helpers ─────────────────────────────────────────────────────────
-// Bucket name where you upload photos — change if yours is named differently
-const PHOTOS_BUCKET = 'photos'
+//
+// Your current Supabase Storage layout:
+//   videos bucket → FotosP/ → all your photos
+//   photos bucket → your hero video file
+//
+// To organize photos by project later, create subfolders inside FotosP:
+//   videos/FotosP/luz-de-medianoche/cover.jpg
+//   videos/FotosP/luz-de-medianoche/gallery-1.jpg
+// If no subfolder exists for a slug, shows all photos from FotosP.
+
+const PHOTOS_BUCKET = 'videos'   // bucket where your photos live
+const PHOTOS_FOLDER = 'FotosP'   // folder inside that bucket
+const VIDEO_BUCKET  = 'photos'   // bucket where your hero video lives
 
 /**
- * Lists all photos for a project from Supabase Storage.
- * Upload your photos to a folder named after the project slug:
- *   photos/luz-de-medianoche/cover.jpg
- *   photos/luz-de-medianoche/gallery-1.jpg
- *
- * Returns an array of full public URLs, cover.jpg always first.
+ * Lists photos for a project from Supabase Storage.
+ * First tries videos/FotosP/<slug>/ — if empty, falls back to videos/FotosP/.
+ * Returns public URLs, with any file named "cover.*" sorted first.
  */
 export async function getProjectPhotos(slug) {
   if (!hasSupabaseConfig) return createResult([], null)
 
-  return withErrorHandling(async () => {
-    const { data, error } = await supabase.storage
-      .from(PHOTOS_BUCKET)
-      .list(slug, { sortBy: { column: 'name', order: 'asc' } })
-
-    if (error) return createResult([], error.message)
-    if (!data || data.length === 0) return createResult([], null)
-
-    const urls = data
-      .filter((file) => file.name !== '.emptyFolderPlaceholder')
-      .map((file) => {
-        const { data: urlData } = supabase.storage
+  const buildUrls = (files, folder) =>
+    files
+      .filter((f) => f.name !== '.emptyFolderPlaceholder' && f.id)
+      .map((f) => {
+        const { data } = supabase.storage
           .from(PHOTOS_BUCKET)
-          .getPublicUrl(`${slug}/${file.name}`)
-        return urlData.publicUrl
+          .getPublicUrl(`${folder}/${f.name}`)
+        return data.publicUrl
+      })
+      .sort((a, b) => {
+        if (a.includes('/cover.')) return -1
+        if (b.includes('/cover.')) return 1
+        return 0
       })
 
-    // Put cover first (file named "cover.*")
-    urls.sort((a, b) => {
-      const aIsCover = a.includes('/cover.')
-      const bIsCover = b.includes('/cover.')
-      if (aIsCover) return -1
-      if (bIsCover) return 1
-      return 0
-    })
+  return withErrorHandling(async () => {
+    // Try project-specific subfolder first
+    const slugFolder = `${PHOTOS_FOLDER}/${slug}`
+    const { data: slugFiles } = await supabase.storage
+      .from(PHOTOS_BUCKET)
+      .list(slugFolder, { sortBy: { column: 'name', order: 'asc' } })
 
-    return createResult(urls, null)
+    if (slugFiles && slugFiles.filter((f) => f.id).length > 0) {
+      return createResult(buildUrls(slugFiles, slugFolder), null)
+    }
+
+    // Fallback: all photos in FotosP
+    const { data: allFiles, error } = await supabase.storage
+      .from(PHOTOS_BUCKET)
+      .list(PHOTOS_FOLDER, { sortBy: { column: 'name', order: 'asc' } })
+
+    if (error) return createResult([], error.message)
+    if (!allFiles || allFiles.length === 0) return createResult([], null)
+
+    return createResult(buildUrls(allFiles, PHOTOS_FOLDER), null)
   }, 'No fue posible cargar las fotos del proyecto.')
 }
 
 /**
  * Returns the public URL of the hero video.
- * Upload it to the videos bucket at the root level as "hero.mp4".
+ * Default: looks in the "photos" bucket at the root.
+ * Pass the exact filename you uploaded (e.g. 'mi-video.mp4').
  */
-export function getHeroVideoUrl(bucket = 'videos', filename = 'hero.mp4') {
-  const { data } = supabase.storage.from(bucket).getPublicUrl(filename)
+export function getHeroVideoUrl(filename) {
+  if (!filename) return ''
+  const { data } = supabase.storage.from(VIDEO_BUCKET).getPublicUrl(filename)
   return data?.publicUrl ?? ''
 }
 
-export async function sendContactMessage({ name, email, projectType, message }) {
+export async function sendContactMessage({ name, email, phone, projectType, message }) {
   if (!hasSupabaseConfig) {
     return createResult(null, 'Faltan VITE_SUPABASE_URL y/o VITE_SUPABASE_PUBLISHABLE_KEY.')
   }
@@ -159,6 +177,7 @@ export async function sendContactMessage({ name, email, projectType, message }) 
   const payload = {
     name: name?.trim(),
     email: email?.trim(),
+    phone: phone?.trim() || null,
     project_type: projectType?.trim(),
     message: message?.trim(),
   }
@@ -177,3 +196,31 @@ export async function sendContactMessage({ name, email, projectType, message }) 
     return createResult({ ok: true }, null)
   }, 'No fue posible enviar tu mensaje. Intenta nuevamente.')
 }
+
+
+/**
+ *
+ * Every photo URL:https://fpzawlsfnruffhxwogtm.supabase.co/storage/v1/object/public/videos/FotosP/cover.jpg
+ * https://fpzawlsfnruffhxwogtm.supabase.co/storage/v1/object/public/videos/FotosP/DSCF3219.jpg
+ * https://fpzawlsfnruffhxwogtm.supabase.co/storage/v1/object/public/videos/FotosP/DSCF6611.jpg
+ * https://fpzawlsfnruffhxwogtm.supabase.co/storage/v1/object/public/videos/FotosP/DSCF6902.jpg
+ * https://fpzawlsfnruffhxwogtm.supabase.co/storage/v1/object/public/videos/FotosP/DSCF6918.jpg
+ * https://fpzawlsfnruffhxwogtm.supabase.co/storage/v1/object/public/videos/FotosP/DSCF7517.jpg
+ * https://fpzawlsfnruffhxwogtm.supabase.co/storage/v1/object/public/videos/FotosP/DSCF7536.jpg
+ * https://fpzawlsfnruffhxwogtm.supabase.co/storage/v1/object/public/videos/FotosP/DSCF7601.jpg
+ * https://fpzawlsfnruffhxwogtm.supabase.co/storage/v1/object/public/videos/FotosP/IMG_5928.HEIC
+ * https://fpzawlsfnruffhxwogtm.supabase.co/storage/v1/object/public/videos/FotosP/IMG_6926.HEIC
+ * https://fpzawlsfnruffhxwogtm.supabase.co/storage/v1/object/public/videos/FotosP/PHOTO-2024-06-25-16-26-15%202.jpg
+ * https://fpzawlsfnruffhxwogtm.supabase.co/storage/v1/object/public/videos/FotosP/PHOTO-2024-06-25-16-26-15.jpg
+ * https://fpzawlsfnruffhxwogtm.supabase.co/storage/v1/object/public/videos/FotosP/PHOTO-2024-06-25-16-26-16.jpg
+ * https://fpzawlsfnruffhxwogtm.supabase.co/storage/v1/object/public/videos/FotosP/FotoPaco.JPG
+ * https://fpzawlsfnruffhxwogtm.supabase.co/storage/v1/object/public/videos/FotosP/Landscape.JPG
+ * https://fpzawlsfnruffhxwogtm.supabase.co/storage/v1/object/public/videos/FotosP/Quincea1.JPG
+ * https://fpzawlsfnruffhxwogtm.supabase.co/storage/v1/object/public/videos/FotosP/Quincea2.JPG
+ * https://fpzawlsfnruffhxwogtm.supabase.co/storage/v1/object/public/videos/FotosP/Quincea3.JPG
+ * https://fpzawlsfnruffhxwogtm.supabase.co/storage/v1/object/public/videos/FotosP/Wedding.JPG
+ * https://fpzawlsfnruffhxwogtm.supabase.co/storage/v1/object/public/videos/FotosP/Wedding2.JPG
+ * video:
+ * https://fpzawlsfnruffhxwogtm.supabase.co/storage/v1/object/public/photos/hero.mp4
+ *
+ */

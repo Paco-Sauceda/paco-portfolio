@@ -10,6 +10,7 @@
   position: sticky;
   top: 0;
   height: 100vh;
+  height: 100dvh;
   overflow: hidden;
   isolation: isolate;
 }
@@ -101,7 +102,7 @@
 /* ─── Responsive ────────────────────────────────────────────── */
 @media (max-width: 600px) {
   .svh-wrapper {
-    height: 400vh; /* slightly less on mobile */
+    height: 300vh;
   }
 
   .svh-title {
@@ -110,5 +111,19 @@
 
   .svh-subtitle {
     max-width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .svh-wrapper {
+    height: 250vh;
+  }
+
+  .svh__mid {
+    display: none;
+  }
+
+  .svh-title {
+    font-size: clamp(2.2rem, 7vw, 4rem);
   }
 }

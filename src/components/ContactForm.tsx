@@ -7,9 +7,10 @@ const SERVICE_OPTIONS = ['Fotografía', 'Marcos', 'Video', 'Bodas', 'XV Años', 
 
 interface ContactFormProps {
   initialService?: string
+  initialPackage?: string
 }
 
-function ContactForm({ initialService }: ContactFormProps) {
+function ContactForm({ initialService, initialPackage }: ContactFormProps) {
   const defaultService =
     SERVICE_OPTIONS.find((s) => s === initialService) ?? 'Fotografía'
 
@@ -29,6 +30,7 @@ function ContactForm({ initialService }: ContactFormProps) {
     const { error } = await sendContactMessage({
       name,
       email,
+      phone,
       projectType,
       message,
     })
@@ -51,11 +53,12 @@ function ContactForm({ initialService }: ContactFormProps) {
     <div className="panel contact-form-panel">
       <div className="section-copy-block">
         <span className="eyebrow">Formulario</span>
-        <h2>Envíame tu mensaje.</h2>
+        <h2>Enviame tu mensaje.</h2>
         {initialService ? (
           <p>
-            Interesado en <strong>{initialService}</strong> — completa los datos
-            y te contacto pronto.
+            Interesado en <strong>{initialService}</strong>
+            {initialPackage ? <> &mdash; paquete <strong>{initialPackage}</strong></> : null}
+            . Completa los datos y te contacto pronto.
           </p>
         ) : (
           <p>Comparte los detalles de tu proyecto y te respondo en menos de 24 horas.</p>
@@ -105,7 +108,7 @@ function ContactForm({ initialService }: ContactFormProps) {
         </label>
 
         <label>
-          Cuéntame sobre tu proyecto
+          Cuentame sobre tu proyecto
           <textarea
             onChange={(event) => setMessage(event.target.value)}
             placeholder="Fecha, ubicación, cantidad de personas, qué tipo de resultado esperas..."

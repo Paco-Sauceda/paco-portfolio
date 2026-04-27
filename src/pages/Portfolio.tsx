@@ -29,7 +29,6 @@ function Portfolio() {
               <h3>{service.title}</h3>
               <p style={{ marginTop: 8, fontSize: '0.88rem' }}>{service.description}</p>
             </div>
-            <div className="service-card-hover">Ver galería</div>
           </Link>
         ))}
       </div>
